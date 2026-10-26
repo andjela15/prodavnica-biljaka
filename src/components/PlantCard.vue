@@ -4,6 +4,7 @@ import { PlantService } from '@/services/plant.service'
 import { ReviewService } from '@/services/review.service'
 import { formatPrice } from '@/utils'
 import StarRating from './StarRating.vue'
+import WishButton from './WishButton.vue'
 
 const props = defineProps<{ plant: PlantModel }>()
 
@@ -12,6 +13,8 @@ const summary = ReviewService.getSummary(props.plant.id)
 
 <template>
     <article class="zk-tag">
+        <WishButton :plant-id="plant.id" :plant-name="plant.name" class="zk-heart-corner" />
+
         <img :src="PlantService.getImageUrl(plant)" class="zk-plant-img mb-3" :alt="plant.image_alt">
 
         <div class="mb-2">

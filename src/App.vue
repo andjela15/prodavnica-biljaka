@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Chatbot from '@/components/Chatbot.vue'
 import { activeUser, UserService } from '@/services/user.service'
+import { wishlist } from '@/services/wishlist.service'
 import { showConfirm, showToast } from '@/utils'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -42,6 +43,12 @@ async function logout() {
           <li class="nav-item">
             <RouterLink class="nav-link" active-class="active" to="/kviz">
               <i class="fa-solid fa-wand-magic-sparkles"></i> Pronadji biljku
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" active-class="active" to="/zelje">
+              <i class="fa-solid fa-heart"></i> Želje
+              <span v-if="wishlist.length" class="badge rounded-pill text-bg-light ms-1">{{ wishlist.length }}</span>
             </RouterLink>
           </li>
           <li class="nav-item">

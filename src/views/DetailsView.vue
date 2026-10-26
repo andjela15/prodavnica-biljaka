@@ -7,6 +7,7 @@ import { ReviewService } from '@/services/review.service'
 import { formatDate, formatPrice } from '@/utils'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import WishButton from '@/components/WishButton.vue'
 
 const route = useRoute()
 const id = Number(route.params.id)
@@ -69,7 +70,10 @@ const features = computed(() => {
 
             <div class="col-12 col-md-7">
                 <span class="zk-stamp mb-2">{{ plant.category }}</span>
-                <h1 class="mb-0">{{ plant.name }}</h1>
+                 <h1 class="mb-0 d-flex align-items-center gap-2">
+                    {{ plant.name }}
+                    <WishButton :plant-id="plant.id" :plant-name="plant.name" />
+                </h1>
                 <p class="zk-latin fs-5 mb-2">{{ plant.latin_name }}</p>
 
                 <a href="#recenzije" class="d-inline-block mb-3 text-reset text-decoration-none">

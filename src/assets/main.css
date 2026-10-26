@@ -179,4 +179,33 @@ h1, h2, h3, h4, h5, .navbar-brand {
 .zk-recent:hover {
     border-color: var(--zk-green);
 }
+.zk-heart {
+    border: 0;
+    background: var(--zk-paper);
+    color: var(--zk-pencil);
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.1rem;
+    box-shadow: 0 1px 3px rgba(70, 52, 30, .2);
+    transition: transform .15s ease, color .15s ease;
+}
+
+.zk-heart:hover {
+    transform: scale(1.12);
+    color: #c0392b;
+}
+
+.zk-heart.is-saved {
+    color: #c0392b;
+}
+
+.zk-heart-corner {
+    position: absolute;
+    top: 2.2rem;
+    right: 1.4rem;
+    z-index: 3;
+}
 }

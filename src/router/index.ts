@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
+import QuizView from '@/views/QuizView.vue'
+import WishlistView from '@/views/WishlistView.vue'
 import DetailsView from '@/views/DetailsView.vue'
 import ReserveView from '@/views/ReserveView.vue'
 import CartView from '@/views/CartView.vue'
@@ -12,6 +14,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', component: HomeView, meta: { title: 'Katalog' } },
+    { path: '/kviz', component: QuizView, meta: { title: 'Pronadji biljku' } },
+    { path: '/zelje', component: WishlistView, meta: { title: 'Lista želja' } },
     { path: '/biljka/:id', component: DetailsView, meta: { title: 'Biljka' } },
     { path: '/rezervacija/:id', component: ReserveView, meta: { title: 'Rezervacija', requiresAuth: true } },
     { path: '/korpa', component: CartView, meta: { title: 'Korpa', requiresAuth: true } },
