@@ -83,7 +83,10 @@ const features = computed(() => {
                     <span v-else class="badge text-bg-secondary">Trenutno nije dostupna</span>
                 </div>
 
-                <button type="button" class="btn btn-primary btn-lg" :disabled="!plant.is_available">
+                                <RouterLink v-if="plant.is_available" :to="`/rezervacija/${plant.id}`" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-basket-shopping"></i> Rezervisi biljku
+                </RouterLink>
+                <button v-else type="button" class="btn btn-primary btn-lg" disabled>
                     <i class="fa-solid fa-basket-shopping"></i> Rezervisi biljku
                 </button>
                 <p v-if="!plant.is_available" class="small text-body-secondary mt-2">

@@ -6,6 +6,7 @@ import { formatPrice } from '@/utils'
 import StarRating from './StarRating.vue'
 
 const props = defineProps<{ plant: PlantModel }>()
+
 const summary = ReviewService.getSummary(props.plant.id)
 </script>
 
@@ -22,6 +23,7 @@ const summary = ReviewService.getSummary(props.plant.id)
             </RouterLink>
         </h3>
         <div class="zk-latin mb-2">{{ plant.latin_name }}</div>
+
         <div class="mb-2">
             <StarRating :value="summary.average" :count="summary.count" />
         </div>
@@ -32,11 +34,13 @@ const summary = ReviewService.getSummary(props.plant.id)
             <i class="fa-solid fa-droplet me-1"></i>{{ plant.watering }}
         </div>
 
-        <div class="zk-dotted mt-auto pt-2 d-flex align-items-end justify-content-between gap-2">
+        <div class="zk-dotted mt-auto pt-2 d-flex align-items-center justify-content-between gap-2">
             <span class="zk-price">{{ formatPrice(plant.price) }}</span>
-            <span v-if="plant.is_available" class="small text-body-secondary">
-                na stanju {{ plant.stock_quantity }}
-            </span>
+
+            <RouterLink v-if="plant.is_available" :to="`/rezervacija/${plant.id}`"
+                class="btn btn-primary btn-sm position-relative" style="z-index: 2;">
+                <i class="fa-solid fa-basket-shopping"></i> Rezerviši
+            </RouterLink>
             <span v-else class="badge text-bg-secondary">Nema na stanju</span>
         </div>
     </article>
