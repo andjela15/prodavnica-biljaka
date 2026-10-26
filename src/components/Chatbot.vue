@@ -22,7 +22,7 @@ interface Message {
 
 const tree: Record<string, DialogNode> = {
     start: {
-        text: 'Zdravo! Ja sam Lista, pomocnica Zelenog kutka. Izaberite temu ili napisite pitanje.',
+        text: 'Zdravo! Ja sam Biljana, pomocnica Zelenog kutka. Izaberite temu ili napisite pitanje.',
         options: [
             { label: 'Kako da rezervisem biljku?', next: 'rezervacija' },
             { label: 'Sta znace statusi u korpi?', next: 'statusi' },
@@ -190,16 +190,16 @@ function currentOptions(): Option[] {
 <template>
     <div class="zk-chat">
         <button v-if="!isOpen" type="button" class="btn btn-primary zk-chat-toggle shadow"
-            aria-label="Otvori pomocnicu Listu" @click="open()">
+            aria-label="Otvori pomocnicu Biljanu" @click="open()">
             <i class="fa-solid fa-leaf"></i>
-            <span class="d-none d-sm-inline ms-2">Pitaj Listu</span>
+            <span class="d-none d-sm-inline ms-2">Pitaj Biljanu</span>
         </button>
 
-        <section v-else class="card zk-chat-window shadow-lg" role="dialog" aria-label="Pomocnica Lista">
+        <section v-else class="card zk-chat-window shadow-lg" role="dialog" aria-label="Pomocnica Biljana">
             <header class="card-header d-flex align-items-center gap-2 py-2">
                 <span class="zk-chat-avatar"><i class="fa-solid fa-leaf"></i></span>
                 <div class="me-auto">
-                    <div class="fw-bold">Lista</div>
+                    <div class="fw-bold">Biljana</div>
                     <small class="text-body-secondary">Pomocnica za biljke i rezervacije</small>
                 </div>
                 <button type="button" class="btn btn-sm btn-link text-body-secondary" title="Pocni ispocetka"
@@ -239,7 +239,7 @@ function currentOptions(): Option[] {
 
             <form class="card-footer d-flex gap-2" @submit.prevent="send()">
                 <input id="chat-input" v-model="input" type="text" class="form-control form-control-sm"
-                    placeholder="Napisite pitanje..." aria-label="Pitanje za Listu" autocomplete="off">
+                    placeholder="Napisite pitanje..." aria-label="Pitanje za Biljanu" autocomplete="off">
                 <button type="submit" class="btn btn-primary btn-sm" aria-label="Posalji" :disabled="!input.trim()">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
