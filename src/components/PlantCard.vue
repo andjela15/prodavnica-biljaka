@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { PlantModel } from '@/models/plant.model'
 import { PlantService } from '@/services/plant.service'
+import { ReviewService } from '@/services/review.service'
 import { formatPrice } from '@/utils'
+import StarRating from './StarRating.vue'
 
-// Etiketa jedne biljke. Biljku dobija od stranice (HomeView) preko "props".
-defineProps<{ plant: PlantModel }>()
+const props = defineProps<{ plant: PlantModel }>()
+const summary = ReviewService.getSummary(props.plant.id)
 </script>
 
 <template>
@@ -15,12 +17,14 @@ defineProps<{ plant: PlantModel }>()
             <span class="zk-stamp">{{ plant.category }}</span>
         </div>
         <h3 class="h5 mb-0">
-            <!-- stretched-link čini celu etiketu klikabilnom -->
             <RouterLink :to="`/biljka/${plant.id}`" class="stretched-link text-reset text-decoration-none">
                 {{ plant.name }}
             </RouterLink>
         </h3>
         <div class="zk-latin mb-2">{{ plant.latin_name }}</div>
+        <div class="mb-2">
+            <StarRating :value="summary.average" :count="summary.count" />
+        </div>
 
         <div class="small text-body-secondary mb-3">
             <i class="fa-solid fa-sun me-1"></i>{{ plant.light_requirement }}

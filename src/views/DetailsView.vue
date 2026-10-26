@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import StarRating from '@/components/StarRating.vue'
 import type { PlantModel } from '@/models/plant.model'
 import { PlantService } from '@/services/plant.service'
+import { ReviewService } from '@/services/review.service'
 import { formatDate, formatPrice } from '@/utils'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -15,6 +17,9 @@ PlantService.getById(id)
     .then(data => plant.value = data)
     .catch(() => notFound.value = true)
 
+// Recenzije i prosečna ocena
+const reviews = ReviewService.getForPlant(id)
+const summary = ReviewService.getSummary(id)
 const features = computed(() => {
     const p = plant.value
     if (!p) return []
@@ -61,7 +66,12 @@ const features = computed(() => {
             <div class="col-12 col-md-7">
                 <span class="zk-stamp mb-2">{{ plant.category }}</span>
                 <h1 class="mb-0">{{ plant.name }}</h1>
-                <p class="zk-latin fs-5">{{ plant.latin_name }}</p>
+                <p class="zk-latin fs-5 mb-2">{{ plant.latin_name }}</p>
+
+                <a href="#recenzije" class="d-inline-block mb-3 text-reset text-decoration-none">
+                    <StarRating :value="summary.average" :count="summary.count" />
+                    <span class="small ms-1 text-decoration-underline">procitaj recenzije</span>
+                </a>
 
                 <p class="lead">{{ plant.description }}</p>
 
@@ -73,7 +83,6 @@ const features = computed(() => {
                     <span v-else class="badge text-bg-secondary">Trenutno nije dostupna</span>
                 </div>
 
-                <!-- Rezervacija stiže u jednom od narednih koraka -->
                 <button type="button" class="btn btn-primary btn-lg" :disabled="!plant.is_available">
                     <i class="fa-solid fa-basket-shopping"></i> Rezervisi biljku
                 </button>
@@ -82,7 +91,7 @@ const features = computed(() => {
                 </p>
             </div>
         </div>
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
             <div class="col-12 col-lg-7">
                 <div class="card h-100">
                     <div class="card-body">
@@ -111,5 +120,26 @@ const features = computed(() => {
                 </div>
             </div>
         </div>
+        <section id="recenzije" class="card">
+            <div class="card-body">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <h2 class="h5 mb-0">Recenzije kupaca</h2>
+                    <StarRating :value="summary.average" :count="summary.count" />
+                </div>
+                <p class="small text-body-secondary">
+                    Recenzije ostavljaju samo kupci kojima je biljka stigla. Svoju ocenu možete dati
+                    u korpi, kad rezervisana biljka dobije status "Pristiglo".
+                </p>
+
+                <div v-for="(r, i) in reviews" :key="i" class="zk-dotted py-3">
+                    <div class="d-flex flex-wrap justify-content-between gap-2">
+                        <strong>{{ r.author }}</strong>
+                        <span class="small text-body-secondary">{{ formatDate(r.date) }}</span>
+                    </div>
+                    <StarRating :value="r.rating" />
+                    <p v-if="r.comment" class="mb-0 mt-1">{{ r.comment }}</p>
+                </div>
+            </div>
+        </section>
     </template>
 </template>
