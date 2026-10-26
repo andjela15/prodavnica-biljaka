@@ -1,4 +1,22 @@
 <script setup lang="ts">
+import { activeUser, UserService } from '@/services/user.service'
+import { showConfirm, showToast } from '@/utils'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const reservedCount = computed(() =>
+    activeUser.value?.orders.filter(o => o.status === 'rezervisano').length ?? 0
+)
+
+async function logout() {
+    if (await showConfirm('Odjava', 'Da li želite da se odjavite?', 'Odjavi me')) {
+        UserService.logout()
+        showToast('Odjavljeni ste.', 'info')
+        router.push('/')
+    }
+}
 </script>
 
 <template>
@@ -23,12 +41,25 @@
           <li class="nav-item">
             <RouterLink class="nav-link" active-class="active" to="/korpa">
               <i class="fa-solid fa-basket-shopping"></i> Korpa
+              <span v-if="reservedCount" class="badge rounded-pill text-bg-light ms-1">{{ reservedCount }}</span>
             </RouterLink>
           </li>
         </ul>
 
-        <!-- Desno: nalog -->
-        <ul class="navbar-nav align-items-lg-center">
+        <ul v-if="activeUser" class="navbar-nav align-items-lg-center">
+          <li class="nav-item">
+            <RouterLink class="nav-link" active-class="active" to="/profil">
+              <i class="fa-solid fa-user"></i> {{ activeUser.firstName }}
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <button type="button" class="nav-link" @click="logout()">
+              <i class="fa-solid fa-right-from-bracket"></i> Odjava
+            </button>
+          </li>
+        </ul>
+
+        <ul v-else class="navbar-nav align-items-lg-center">
           <li class="nav-item">
             <RouterLink class="nav-link" active-class="active" to="/prijava">
               <i class="fa-solid fa-right-to-bracket"></i> Prijava
