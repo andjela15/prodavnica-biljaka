@@ -3,6 +3,7 @@ import type { PlantModel } from '@/models/plant.model'
 import { PlantService } from '@/services/plant.service'
 import { formatPrice } from '@/utils'
 
+// Etiketa jedne biljke. Biljku dobija od stranice (HomeView) preko "props".
 defineProps<{ plant: PlantModel }>()
 </script>
 
@@ -13,7 +14,12 @@ defineProps<{ plant: PlantModel }>()
         <div class="mb-2">
             <span class="zk-stamp">{{ plant.category }}</span>
         </div>
-        <h3 class="h5 mb-0">{{ plant.name }}</h3>
+        <h3 class="h5 mb-0">
+            <!-- stretched-link čini celu etiketu klikabilnom -->
+            <RouterLink :to="`/biljka/${plant.id}`" class="stretched-link text-reset text-decoration-none">
+                {{ plant.name }}
+            </RouterLink>
+        </h3>
         <div class="zk-latin mb-2">{{ plant.latin_name }}</div>
 
         <div class="small text-body-secondary mb-3">
