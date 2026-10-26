@@ -2,13 +2,16 @@
 import PlantCard from '@/components/PlantCard.vue'
 import type { PlantModel } from '@/models/plant.model'
 import { PlantService } from '@/services/plant.service'
+import { RecentService } from '@/services/recent.service'
 import { ReviewService } from '@/services/review.service'
+import { formatPrice } from '@/utils'
 import { computed, ref } from 'vue'
 
-const plants = ref<PlantModel[]>([]) 
-const loading = ref(true)            
-const error = ref(false)             
-const showMore = ref(false)          
+const plants = ref<PlantModel[]>([])
+const loading = ref(true)
+const error = ref(false)
+const showMore = ref(false)
+
 function emptySearch() {
     return {
         name: '',
@@ -28,6 +31,19 @@ function emptySearch() {
 }
 const search = ref(emptySearch())
 
+const recentIds = ref(RecentService.getIds())
+
+const recentPlants = computed(() =>
+    recentIds.value
+        .map(id => plants.value.find(p => p.id === id))
+        .filter((p): p is PlantModel => p !== undefined)
+)
+
+function clearRecent() {
+    RecentService.clear()
+    recentIds.value = []
+}
+
 function loadPlants() {
     loading.value = true
     error.value = false
@@ -37,6 +53,7 @@ function loadPlants() {
         .finally(() => loading.value = false)
 }
 loadPlants()
+
 const options = computed(() => ({
     category: PlantService.getDistinct(plants.value, 'category'),
     plantType: PlantService.getDistinct(plants.value, 'plant_type'),
@@ -44,6 +61,7 @@ const options = computed(() => ({
     season: PlantService.getDistinct(plants.value, 'season'),
     audience: PlantService.getDistinct(plants.value, 'target_audience')
 }))
+
 const filtered = computed(() => {
     const s = search.value
     const result = plants.value.filter(p => {
@@ -64,6 +82,7 @@ const filtered = computed(() => {
         if (s.minRating && rating < s.minRating) return false
         return true
     })
+
     return result.sort((a, b) => {
         switch (s.sort) {
             case 'priceAsc': return a.price - b.price
@@ -75,7 +94,6 @@ const filtered = computed(() => {
     })
 })
 
-// Koliko je kriterijuma trenutno zadato
 const activeCount = computed(() => {
     const s = search.value
     const values = [s.name, s.description, s.category, s.plantType, s.climate, s.season,
@@ -92,11 +110,32 @@ function resetSearch() {
     <header class="mb-4">
         <h1 class="mb-1">Šta raste ove sezone</h1>
         <p class="text-body-secondary mb-0">
-            Prosetajte kroz rasadnik, pogledajte detalje i rezervisite biljku.
+            Prošetajte kroz rasadnik, pogledajte detalje i rezervišite biljku.
         </p>
     </header>
 
-    <!-- ===== Pretraga ===== -->
+    <section v-if="recentPlants.length" class="mb-4" aria-label="Nedavno pogledane biljke">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <h2 class="h6 mb-0">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i> Nedavno ste pogledali
+            </h2>
+            <button type="button" class="btn btn-link btn-sm p-0 ms-auto text-body-secondary" @click="clearRecent()">
+                Obrisi istoriju
+            </button>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <RouterLink v-for="p in recentPlants" :key="p.id" :to="`/biljka/${p.id}`"
+                class="card flex-row align-items-center gap-2 p-2 pe-3 text-reset text-decoration-none zk-recent">
+                <img :src="PlantService.getImageUrl(p)" :alt="p.image_alt" class="zk-plant-img"
+                    style="width: 48px;">
+                <span>
+                    <span class="d-block fw-semibold small">{{ p.name }}</span>
+                    <span class="small text-body-secondary">{{ formatPrice(p.price) }}</span>
+                </span>
+            </RouterLink>
+        </div>
+    </section>
+
     <form class="card mb-4" role="search" @submit.prevent>
         <div class="card-body">
             <div class="row g-3">
@@ -118,6 +157,7 @@ function resetSearch() {
                     </select>
                 </div>
             </div>
+
             <div v-show="showMore" class="row g-3 mt-0">
                 <div class="col-12 col-md-6 col-lg-3">
                     <label for="s-type" class="form-label">Tip biljke</label>
@@ -171,16 +211,16 @@ function resetSearch() {
                     <select id="s-rating" class="form-select" v-model.number="search.minRating">
                         <option :value="0">Bilo koja ocena</option>
                         <option :value="4.5">4,5 zvezdice i više</option>
-                        <option :value="4">4 zvezdice i vise</option>
-                        <option :value="3">3 zvezdice i vise</option>
+                        <option :value="4">4 zvezdice i više</option>
+                        <option :value="3">3 zvezdice i više</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-6 col-lg-3">
-                    <label for="s-sort" class="form-label">Poredjaj po</label>
+                    <label for="s-sort" class="form-label">Poređaj po</label>
                     <select id="s-sort" class="form-select" v-model="search.sort">
                         <option value="name">Nazivu (A–Š)</option>
-                        <option value="priceAsc">Ceni, od najnize</option>
-                        <option value="priceDesc">Ceni, od najvise</option>
+                        <option value="priceAsc">Ceni, od najniže</option>
+                        <option value="priceDesc">Ceni, od najviše</option>
                         <option value="rating">Najbolje ocenjene</option>
                         <option value="newest">Najnovije sadnice</option>
                     </select>
@@ -198,26 +238,27 @@ function resetSearch() {
                 </span>
                 <button type="button" class="btn btn-outline-secondary btn-sm" :disabled="activeCount === 0"
                     @click="resetSearch()">
-                    <i class="fa-solid fa-rotate-left"></i> Ponisti pretragu
+                    <i class="fa-solid fa-rotate-left"></i> Poništi pretragu
                     <span v-if="activeCount" class="badge text-bg-secondary ms-1">{{ activeCount }}</span>
                 </button>
             </div>
         </div>
     </form>
+
     <div v-if="loading" class="text-center py-5">
         <div class="spinner-border" role="status" style="color: var(--zk-green);"></div>
-        <p class="mt-2">Ucitavanje biljaka…</p>
+        <p class="mt-2">Učitavanje biljaka…</p>
     </div>
 
     <div v-else-if="error" class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2">
-        Biljke trenutno ne mogu da se ucitaju. Proverite internet vezu.
-        <button type="button" class="btn btn-sm btn-outline-primary" @click="loadPlants()">Pokusaj ponovo</button>
+        Biljke trenutno ne mogu da se učitaju. Proverite internet vezu.
+        <button type="button" class="btn btn-sm btn-outline-primary" @click="loadPlants()">Pokušaj ponovo</button>
     </div>
 
     <div v-else-if="filtered.length === 0" class="card text-center p-5">
         <i class="fa-solid fa-magnifying-glass fa-2x mb-3" style="color: var(--zk-green);"></i>
         <h2 class="h5">Nema biljaka za zadate kriterijume</h2>
-        <p>Probajte da uklonite neki kriterijum ili prosirite raspon cene i datuma.</p>
+        <p>Probajte da uklonite neki kriterijum ili proširite raspon cene i datuma.</p>
         <div><button type="button" class="btn btn-primary" @click="resetSearch()">Poništi pretragu</button></div>
     </div>
 

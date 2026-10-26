@@ -2,6 +2,7 @@
 import StarRating from '@/components/StarRating.vue'
 import type { PlantModel } from '@/models/plant.model'
 import { PlantService } from '@/services/plant.service'
+import { RecentService } from '@/services/recent.service'
 import { ReviewService } from '@/services/review.service'
 import { formatDate, formatPrice } from '@/utils'
 import { computed, ref } from 'vue'
@@ -14,12 +15,15 @@ const plant = ref<PlantModel | null>(null)
 const notFound = ref(false)
 
 PlantService.getById(id)
-    .then(data => plant.value = data)
+    .then(data => {
+        plant.value = data
+        RecentService.add(data.id)
+    })
     .catch(() => notFound.value = true)
 
-// Recenzije i prosečna ocena
 const reviews = ReviewService.getForPlant(id)
 const summary = ReviewService.getSummary(id)
+
 const features = computed(() => {
     const p = plant.value
     if (!p) return []
@@ -46,8 +50,8 @@ const features = computed(() => {
     </nav>
 
     <div v-if="notFound" class="card text-center p-5">
-        <h2 class="h4">Biljka nije pronadjena</h2>
-        <p>Mozda je uklonjena iz ponude.</p>
+        <h2 class="h4">Biljka nije pronađena</h2>
+        <p>Možda je uklonjena iz ponude.</p>
         <div><RouterLink to="/" class="btn btn-primary">Nazad na katalog</RouterLink></div>
     </div>
 
@@ -70,7 +74,7 @@ const features = computed(() => {
 
                 <a href="#recenzije" class="d-inline-block mb-3 text-reset text-decoration-none">
                     <StarRating :value="summary.average" :count="summary.count" />
-                    <span class="small ms-1 text-decoration-underline">procitaj recenzije</span>
+                    <span class="small ms-1 text-decoration-underline">pročitaj recenzije</span>
                 </a>
 
                 <p class="lead">{{ plant.description }}</p>
@@ -83,17 +87,18 @@ const features = computed(() => {
                     <span v-else class="badge text-bg-secondary">Trenutno nije dostupna</span>
                 </div>
 
-                                <RouterLink v-if="plant.is_available" :to="`/rezervacija/${plant.id}`" class="btn btn-primary btn-lg">
-                    <i class="fa-solid fa-basket-shopping"></i> Rezervisi biljku
+                <RouterLink v-if="plant.is_available" :to="`/rezervacija/${plant.id}`" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-basket-shopping"></i> Rezerviši biljku
                 </RouterLink>
                 <button v-else type="button" class="btn btn-primary btn-lg" disabled>
-                    <i class="fa-solid fa-basket-shopping"></i> Rezervisi biljku
+                    <i class="fa-solid fa-basket-shopping"></i> Rezerviši biljku
                 </button>
                 <p v-if="!plant.is_available" class="small text-body-secondary mt-2">
-                    Biljka nije na stanju, pa rezervacija trenutno nije moguca.
+                    Biljka nije na stanju, pa rezervacija trenutno nije moguća.
                 </p>
             </div>
         </div>
+
         <div class="row g-4 mb-4">
             <div class="col-12 col-lg-7">
                 <div class="card h-100">
@@ -123,6 +128,7 @@ const features = computed(() => {
                 </div>
             </div>
         </div>
+
         <section id="recenzije" class="card">
             <div class="card-body">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">

@@ -172,4 +172,11 @@ h1, h2, h3, h4, h5, .navbar-brand {
     text-decoration-thickness: 2px;
     text-underline-offset: 6px;
 }
+.zk-recent {
+    transition: border-color .15s ease;
+}
+
+.zk-recent:hover {
+    border-color: var(--zk-green);
+}
 }

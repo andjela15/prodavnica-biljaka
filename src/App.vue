@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Chatbot from '@/components/Chatbot.vue'
 import { activeUser, UserService } from '@/services/user.service'
 import { showConfirm, showToast } from '@/utils'
 import { computed } from 'vue'
@@ -36,6 +37,11 @@ async function logout() {
           <li class="nav-item">
             <RouterLink class="nav-link" exact-active-class="active" to="/">
               <i class="fa-solid fa-leaf"></i> Katalog
+            </RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" active-class="active" to="/kviz">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Pronadji biljku
             </RouterLink>
           </li>
           <li class="nav-item">
@@ -78,7 +84,10 @@ async function logout() {
   <main class="container pb-5">
     <RouterView />
   </main>
+
+  <Chatbot />
 </template>
+
 <style>
 .form-control,
 .form-select {
