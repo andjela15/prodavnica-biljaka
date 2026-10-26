@@ -1,11 +1,27 @@
 <script setup lang="ts">
 import type { DeliveryType, OrderModel } from '@/models/order.model'
+import type { PlantModel } from '@/models/plant.model'
+import { PlantService } from '@/services/plant.service'
 import { UserService } from '@/services/user.service'
 import { formatDate, formatPrice, getOrderTotal, showConfirm, showToast, showUndo, STATUS_INFO } from '@/utils'
 import { ref } from 'vue'
 import StarInput from './StarInput.vue'
 
 const props = defineProps<{ order: OrderModel }>()
+
+const showDetails = ref(false)
+const plant = ref<PlantModel | null>(null)
+const detailsError = ref(false)
+
+function toggleDetails() {
+    showDetails.value = !showDetails.value
+    if (showDetails.value && !plant.value) {
+        detailsError.value = false
+        PlantService.getById(props.order.plantId)
+            .then(data => plant.value = data)
+            .catch(() => detailsError.value = true)
+    }
+}
 
 const editing = ref(false)
 const edit = ref({ quantity: 1, delivery: 'dostava' as DeliveryType, note: '' })
@@ -98,7 +114,40 @@ function saveRating() {
                         <span>{{ order.quantity }} × {{ formatPrice(order.pricePerUnit) }}</span>
                         <span class="zk-price ms-auto">{{ formatPrice(getOrderTotal(order)) }}</span>
                     </div>
+
+                    <button type="button" class="btn btn-link btn-sm px-0 mt-1" :aria-expanded="showDetails"
+                        @click="toggleDetails()">
+                        <i :class="showDetails ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i>
+                        {{ showDetails ? 'Sakrij detalje' : 'Prikaži detalje' }}
+                    </button>
                 </div>
+            </div>
+
+            <div v-if="showDetails" class="zk-dotted mt-2 pt-3 small">
+                <div v-if="detailsError" class="text-danger">Detalji trenutno ne mogu da se učitaju.</div>
+                <div v-else-if="!plant" class="text-body-secondary">Učitavanje…</div>
+                <dl v-else class="row mb-0">
+                    <dt class="col-sm-4 fw-normal text-body-secondary">Opis</dt>
+                    <dd class="col-sm-8">{{ plant.description }}</dd>
+                    <dt class="col-sm-4 fw-normal text-body-secondary">Sadnja</dt>
+                    <dd class="col-sm-8">{{ plant.planting_instructions }}</dd>
+                    <dt class="col-sm-4 fw-normal text-body-secondary">Nega</dt>
+                    <dd class="col-sm-8">{{ plant.care_instructions }}</dd>
+                    <dt class="col-sm-4 fw-normal text-body-secondary">Tip</dt>
+                    <dd class="col-sm-8">{{ plant.plant_type }} · {{ plant.climate }} podneblje · {{ plant.season }}</dd>
+                    <dt class="col-sm-4 fw-normal text-body-secondary">Namenjeno za</dt>
+                    <dd class="col-sm-8">{{ plant.target_audience }}</dd>
+                    <dt class="col-sm-4 fw-normal text-body-secondary">Datum proizvodnje</dt>
+                    <dd class="col-sm-8">{{ formatDate(plant.production_date) }}</dd>
+                    <dt class="col-sm-4 fw-normal text-body-secondary">Vaša ocena</dt>
+                    <dd class="col-sm-8 mb-0">
+                        <span v-if="order.rating" class="zk-stars">
+                            <i v-for="n in order.rating" :key="n" class="fa-solid fa-star"></i>
+                        </span>
+                        <span v-else-if="order.status === 'pristiglo'">Još niste ocenili</span>
+                        <span v-else>Ocena je moguća kad biljka stigne</span>
+                    </dd>
+                </dl>
             </div>
 
             <form v-if="editing" class="zk-dotted mt-3 pt-3" @submit.prevent="saveEdit">
