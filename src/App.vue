@@ -79,3 +79,9 @@ async function logout() {
     <RouterView />
   </main>
 </template>
+<style>
+.form-control,
+.form-select {
+    background-color: #fff !important;
+}
+</style>
